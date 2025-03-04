@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 )
@@ -32,8 +31,8 @@ func loadEnv() {
 }
 
 func main() {
-	lambda.Start(handler)
-	//handler()
+	//lambda.Start(handler)
+	handler()
 }
 
 func handler() {
@@ -53,6 +52,8 @@ func handler() {
 
 	// 上位3名の情報をEmbed/通常のメッセージ形式に組み立てて送信
 	sendMessages(dg, textChannelID)
+
+	defer dg.Close() // Lambdaなので必ずセッションを閉じる
 }
 
 // メッセージを送信する関数
