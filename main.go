@@ -3,9 +3,8 @@ package main
 import (
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 )
@@ -13,12 +12,6 @@ import (
 // グローバル変数の宣言！（初期化はmain関数内で行う）
 var discordToken string
 var textChannelID string
-
-func main() {
-	// 環境変数のロード
-	loadEnv()
-	handler()
-}
 
 func loadEnv() {
 	err := godotenv.Load()
@@ -38,7 +31,14 @@ func loadEnv() {
 	}
 }
 
+func main() {
+	lambda.Start(handler)
+	//handler()
+}
+
 func handler() {
+
+	loadEnv()
 	// Discord APIに接続
 	dg, err := discordgo.New("Bot " + discordToken)
 	if err != nil {
@@ -51,22 +51,8 @@ func handler() {
 		log.Fatalf("Discordサーバーへの接続に失敗しました: %v", err)
 	}
 
-		// Discordセッションの使用後、自動的にクローズ
-	defer dg.Close()
-
 	// 上位3名の情報をEmbed/通常のメッセージ形式に組み立てて送信
 	sendMessages(dg, textChannelID)
-
-	// `Ctrl + C` で安全に終了できるようにする
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
-
-	log.Println("Bot is running... Press Ctrl+C to exit.")
-
-	// `stop` チャネルが値を受け取るまで待機
-	<-stop
-
-	log.Println("Bot is shutting down...")
 }
 
 // メッセージを送信する関数
