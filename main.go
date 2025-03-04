@@ -4,40 +4,32 @@ import (
 	"log"
 	"os"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/bwmarrin/discordgo"
-	"github.com/joho/godotenv"
 )
 
 // グローバル変数の宣言！（初期化はmain関数内で行う）
 var discordToken string
 var textChannelID string
 
-func loadEnv() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	// トークンを環境変数から取得
-	discordToken = os.Getenv("DISCORDTOKEN")
-	if discordToken == "" {
-		log.Fatal("DISCORDTOKEN is not set in .env")
-	}
-
-	textChannelID = os.Getenv("DISCORDTEXTCHANNELID")
-	if textChannelID == "" {
-		log.Fatal("TEXTCHANNELID is not set in .env")
-	}
-}
-
 func main() {
-	//lambda.Start(handler)
-	handler()
+	lambda.Start(handler)
+	//handler()
 }
 
 func handler() {
 
-	loadEnv()
+	// 環境変数から取得
+	discordToken = os.Getenv("DISCORDTOKEN")
+	if discordToken == "" {
+		log.Fatal("環境変数 DISCORDTOKEN が設定されていません")
+	}
+
+	textChannelID = os.Getenv("DISCORDTEXTCHANNELID")
+	if textChannelID == "" {
+		log.Fatal("環境変数 DISCORDTEXTCHANNELID が設定されていません")
+	}
+	
 	// Discord APIに接続
 	dg, err := discordgo.New("Bot " + discordToken)
 	if err != nil {
